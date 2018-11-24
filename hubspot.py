@@ -128,11 +128,11 @@ class Hubspot:
 
 if __name__ == '__main__':
     url = 'https://api.hubapi.com/engagements/v1/engagements/paged?hapikey=demo'
-    # Gets the CLIENT_ID associated with the hubspot API
     if len(sys.argv) is not 4:
         print('Usage:<executable> <database name> <table> <action ["create", "updated"]>. Ex: ./hubspot alooma engagements create')
         exit(0)
 
+    # Gets the CLIENT_ID associated with the hubspot API
     client_id = os.getenv('CLIENT_ID')
     dbname = sys.argv[1]
     table = sys.argv[2]
