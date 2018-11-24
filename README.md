@@ -21,6 +21,9 @@ Create a table and Load the Data In (this can be done during reads as well).
 * Python Packages - psycopg2, requests (in requirements.txt file)
 * Database -  Postgres 9.5.14
 
+Clone repo: </br>
+`$ git clone https://github.com/nickolasteixeira/Alooma_Challenge.git`
+
 Run bash script to install all packages and set up database users/privileges: </br> 
 `$ ./install_environment` -> Look inside file to change db passwords, client_ids for API and environment variables
 
