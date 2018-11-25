@@ -35,21 +35,30 @@ Run bash script to install all packages and set up database users/privileges: </
 Run application code to ping the Hubspot API engagement route, insert new rows into database/update rows into database: </br>
 `Usage:<executable> <database name> <table> <action ["create", "updated"]>. Ex: ./hubspot alooma engagements create` </br>
 
-To create a new database, table and ping the hubspot API for engagements to insert into your new table: </br>
+To create a new database, table and ping the hubspot API for engagements to insert into your new table: (Be patient, this takes a while, grabbing 30K rows of data) </br>
 `$ ./hubspot alooma engagements create` </br>
 
 To update your rows in your tables from the Hubspot API engagement route: </br>
 `$ ./hubspot alooma engagements update` </br>
 
 ## Reading Data
-Write a SQL Query that pulls the  Engagements per Day broken down by type. You should expose the counts per day as well. Present these results in a format that makes sense to view. </br>
+Write a SQL Query that pulls the Engagements per Day broken down by type. You should expose the counts per day as well. Present these results in a format that makes sense to view. </br>
 
+### Solution
 To enter into your postgres database: </br>
-`$ psql alooma`
-`select updated_at, engagement_type, count(engagement_type) from engagements group by updated_at, engagement_type order by updated_at desc, count desc;`
+`$ psql alooma` </br>
+
+SQL Query that pulls the Engagements per Day broken down by type.
+`alooma=# select updated_at, engagement_type, count(engagement_type) from engagements group by updated_at, engagement_type order by updated_at desc, count desc;` </br>
 
 ## Bonus Points
 Present a rolling 2 week average for each day.
 
+### Solution
+TBD
+
 ## Final Summary
 Please provide steps - either in Python code, a Jupyter Notebook, or a step-by-step summary of your approach to the problem - and how you solved it. These steps should allow us to run through and implement your solution.
+
+### Solution
+TBD
