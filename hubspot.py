@@ -241,6 +241,7 @@ if __name__ == '__main__':
         # ping Hubspot API and insert rows into table
         h.get_new_engagements(kwargs)
     elif kwargs['action'] == 'update':
+	print('Updating...')
         h.get_new_engagements(kwargs)
     else:
         print_commandline_message()
