@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 '''Module that pings Hubspot API and inserts engagement metrics into postgres database
-    Usage:<executable> <database name> <table> <action ["create", "updated"]>. Ex: ./hubspot alooma engagements create
+    Usage:<executable> <database name> <table> <action ["insert", "updated"]>. Ex: ./hubspot alooma engagements insert
 '''
 from datetime import datetime
 import os
@@ -42,7 +42,7 @@ class Hubspot:
                         engagement_type = item.get('engagement').get('type')
                         # update or add new entries in table
                         cur.execute('select exists(select 1 from {} where engagement_id={})'.format(table, engagement_id))
-                        if action == 'create':
+                        if action == 'insert':
                             # Checks first if the engagement_id is in the table, if not -> add the new entry into the table
                             if not cur.fetchone()[0]:
                                 added = True
@@ -128,7 +128,7 @@ class Hubspot:
 if __name__ == '__main__':
     url = 'https://api.hubapi.com/engagements/v1/engagements/paged?hapikey=demo'
     if len(sys.argv) is not 4:
-        print('Usage:<executable> <database name> <table> <action ["create", "updated"]>. Ex: ./hubspot alooma engagements create')
+        print('Usage:<executable> <database name> <table> <action ["insert", "updated"]>. Ex: ./hubspot alooma engagements insert')
         exit(0)
 
     # Gets the CLIENT_ID associated with the hubspot API
@@ -139,7 +139,7 @@ if __name__ == '__main__':
  
     h = Hubspot(client_id) 
     kwargs = {'url': url, 'offset': 0, 'dbname': dbname, 'table': table, 'action': action}
-    if action == 'create':
+    if action == 'insert':
         # create database
         h.create_database(dbname)
         # create tables
