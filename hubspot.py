@@ -1,150 +1,247 @@
-#!/usr/bin/python3
-'''Module that pings Hubspot API and inserts engagement metrics into postgres database
-    Usage:<executable> <database name> <table> <action ["insert", "updated"]>. Ex: ./hubspot alooma engagements insert
+#!/usr/bin/python
+# #!/usr/bin/python3
+'''Module that pings Hubspot API and inserts engagement metrics into
+    postgres database
+    Usage:<executable> <database name> <table> <action ["insert", "update"]>.
+    Ex: ./hubspot alooma engagements insert
 '''
 from datetime import datetime
+from inputs import kwargs
+import logging
 import os
 import psycopg2
 import requests
 import sys
 
-class Hubspot:
-    '''Hubspot class that takes in Hubspot URL and has methods that retrieve/store data'''
 
-    def __init__(self, client_id):
-        '''Initailizes with client_id from your host env var CLIENT_ID'''
-        self.client_id = client_id 
+class Hubspot:
+    '''Hubspot class that takes in Hubspot URL and has
+    methods that retrieve/store data'''
+
+    # set up a logfile for the class
+    logging.basicConfig(filename='./logs/hubspot.log',
+                        format='%(levelname)s:%(asctime)s:%(message)s',
+                        level=logging.DEBUG)
+
+    def __init__(self, kwargs):
+        '''Initailizes object attributes. url, params
+        Args:
+            kwargs:
+        '''
+        self.url = kwargs['base'] + kwargs['endpoints']
+        self.params = kwargs['params']
 
     def get_new_engagements(self, kwargs):
         '''Method that pings Hubspot Engagement API and writes to alooma database
         Args:
-            url (str): the Hubspot URL to ping
-            num (int): the offset number to recursively ping the Hubspot URL if there are more results       
+            kwargs (dict): dict of items for actions associated with the method
+            ex: base, enpoints, params, dbname, table, action
         '''
-        url, num, dbname, table, action = kwargs['url'], kwargs['offset'], kwargs['dbname'], kwargs['table'], kwargs['action']
-        r = requests.get(url, params={'offset': num})
-        print('Pinging {}&offset={}'.format(url, num))
+        url, num, dbname, table, action = self.url, \
+            kwargs['offset'], kwargs['dbname'], \
+            kwargs['table'], kwargs['action']
+        self.params['offset'] = num
 
+        r = requests.get(url, params=self.params)
         if r.status_code is 200:
+            print('Pinging {}'.format(r.url))
             data = r.json()
             results = data.get('results')
             conn = None
-            if results:
-                try:    
-                    conn = psycopg2.connect('dbname={} user={} password={}'.format(dbname, os.getenv('USER'), os.getenv('ALOOMA_PASSWORD')))
-                    cur = conn.cursor()
-                    added, updated = False, False
-                    for item in results:
-                        # create variales to insert into table
-                        engagement_id = item.get('engagement').get('id')
-                        created_at = item.get('engagement').get('createdAt')
-                        updated_at = item.get('engagement').get('lastUpdated')
-                        engagement_type = item.get('engagement').get('type')
-                        # update or add new entries in table
-                        cur.execute('select exists(select 1 from {} where engagement_id={})'.format(table, engagement_id))
-                        if action == 'insert':
-                            # Checks first if the engagement_id is in the table, if not -> add the new entry into the table
-                            if not cur.fetchone()[0]:
-                                added = True
-                                cur.execute('INSERT INTO {} (engagement_id, created_at, updated_at, engagement_type) VALUES(%s, %s, %s, %s)'.format(table), (engagement_id, datetime.fromtimestamp(created_at/1000), datetime.fromtimestamp(updated_at/1000), engagement_type))
-                        elif action == 'update':
-                            updated = True
-                            cur.execute('UPDATE {} SET updated_at=to_timestamp({}) WHERE engagement_id={}'.format(table, updated_at/1000, engagement_id))
- 
-                    cur.close()
-                    conn.commit() 
+            try:
+                conn = psycopg2.connect(
+                    """dbname={} user={} password={}""".format(
+                        dbname, os.getenv('USER'),
+                        os.getenv('ALOOMA_PASSWORD')))
+                cur = conn.cursor()
+                added, updated = False, False
+                for item in results:
+                    # create variales to insert into table
+                    engagement_id = item.get('engagement').get('id')
+                    created_at = item.get('engagement').get('createdAt')
+                    updated_at = item.get('engagement').get('lastUpdated')
+                    engagement_type = item.get('engagement').get('type')
+                    # update or add new entries in table
+                    cur.execute(
+                        """select exists
+                            (select 1 from {}
+                            where engagement_id={})""".format(
+                            table, engagement_id))
+                    if action == 'insert':
+                        # Checks first if the engagement_id is in the
+                        # table, if not -> add the new entry into the table
+                        if not cur.fetchone()[0]:
+                            added = True
+                            cur.execute(
+                                """INSERT INTO {}
+                                (engagement_id, created_at,
+                                updated_at, engagement_type)
+                                VALUES(%s, %s, %s, %s)""".format(
+                                    table),
+                                (engagement_id,
+                                 datetime.fromtimestamp(created_at / 1000),
+                                 datetime.fromtimestamp(updated_at / 1000),
+                                 engagement_type))
+                    elif action == 'update':
+                        updated = True
+                        cur.execute(
+                            """UPDATE {}
+                            SET updated_at=to_timestamp({})
+                            WHERE engagement_id={}""".format(
+                                table, updated_at / 1000,
+                                engagement_id))
+
+                cur.close()
+                conn.commit()
+                conn.close()
+
+                if added:
+                    self.log_info('New items added to the table')
+                elif updated:
+                    self.log_info('Items updated in table')
+                else:
+                    self.log_info('Items already in table')
+            except (Exception, psycopg2.DatabaseError) as error:
+                self.log_debug(error)
+            finally:
+                if conn is not None:
                     conn.close()
-                    
-                    if added:
-                        print('New items added to the table') 
-                    elif updated:
-                        print('Items updated in table') 
-                    else:
-                        print('Items already in table')
 
-                except (Exception, psycopg2.DatabaseError) as error:
-                    print(error)
-                finally:
-                    if conn is not None:
-                        conn.close()
-
-        # Recursively call API if there are more entries
-        if data.get('hasMore') is True:
+        if data.get('hasMore'):
             kwargs['offset'] = data.get('offset')
-            self.get_new_engagements(kwargs) 
-
+            self.get_new_engagements(kwargs)
 
     def create_database(self, dbname):
-        '''method that creates a database
+        '''Method that creates a database
         Args:
             dbname (str): database name to create
         '''
         conn = None
-        try: 
-            conn = psycopg2.connect('dbname={} user={} host={} password={}'.format('postgres', os.getenv('USER'), 'localhost', os.getenv('ALOOMA_PASSWORD')))
-            conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
+        try:
+            conn = psycopg2.connect(
+                'dbname={} user={} host={} password={}'.format(
+                    'postgres',
+                    os.getenv('USER'),
+                    'localhost',
+                    os.getenv('ALOOMA_PASSWORD')))
+            conn.set_isolation_level(
+                psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
             cur = conn.cursor()
-            cur.execute("""SELECT datname FROM pg_catalog.pg_database WHERE lower(datname) = lower(%s);""", (dbname,))
+            cur.execute(
+                """SELECT datname
+                FROM pg_catalog.pg_database
+                WHERE lower(datname) = lower(%s);""",
+                (dbname,))
             if cur.fetchone() is None:
                 cur.execute("""CREATE DATABASE %s;""" % dbname)
-                print('Database {} created.'.format(dbname))
+                message = '{:%Y-%m-%d %H:%M:%S} '\
+                    '--> Database {} created.'\
+                    .format(datetime.now(), dbname)
+                print(message)
+                self.log_info(message)
             else:
-                print('Database {} already exists.'.format(dbname))
+                message = '{:%Y-%m-%d %H:%M:%S} '\
+                    '--> Database {} exists.'\
+                    .format(datetime.now(), dbname)
+                print(message)
+                self.log_info(message)
 
             cur.close()
             conn.commit()
         except (Exception, psycopg2.DatabaseError) as error:
-            print(error)
+            self.log_debug(error)
         finally:
             if conn is not None:
                 conn.close()
 
-
     def create_tables(self, dbname, table):
-        '''method that creates a new table
+        '''Method that creates a new table
         Args:
             db (str): database name to use for the database
             table (str): table name to create
         '''
         conn = None
         try:
-            conn = psycopg2.connect('dbname={} user={} password={}'.format(dbname, os.getenv('USER'), os.getenv('ALOOMA_PASSWORD')))
+            conn = psycopg2.connect('dbname={} user={} password={}'.format(
+                dbname, os.getenv('USER'), os.getenv('ALOOMA_PASSWORD')))
             cur = conn.cursor()
-            cur.execute("""SELECT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME=%s)""", (table,))
+            cur.execute(
+                """SELECT EXISTS
+                (SELECT 1
+                FROM INFORMATION_SCHEMA.TABLES
+                WHERE TABLE_NAME=%s)""",
+                (table,
+                 ))
             if not cur.fetchone()[0]:
-                cur.execute("""CREATE TABLE IF NOT EXISTS %s(engagement_id integer PRIMARY KEY, created_at date NOT NULL, updated_at date NOT NULL, engagement_type text)""" % table)
-                print("Table {} created.".format(table))
+                cur.execute(
+                    """CREATE TABLE IF NOT EXISTS %s
+                    (engagement_id integer PRIMARY KEY,
+                    created_at date NOT NULL,
+                    updated_at date NOT NULL,
+                    engagement_type text)""" %
+                    table)
+                message = '{:%Y-%m-%d %H:%M:%S} '\
+                    '--> Table {} created.'\
+                    .format(datetime.now(), table)
+                print(message)
+                self.log_info(message)
             else:
-                print("Table {} already exists".format(table))        
-     
+                message = '{:%Y-%m-%d %H:%M:%S} '\
+                    '--> Table {} exists.'\
+                    .format(datetime.now(), table)
+                print(message)
+                self.log_info(message)
+
             cur.close()
             conn.commit()
         except (Exception, psycopg2.DatabaseError) as error:
-            print(error)
+            self.log_debug(error)
         finally:
             if conn is not None:
                 conn.close()
 
+    def log_debug(self, error):
+        '''Method that logs begugging data into a file
+            Args:
+                error (str): error that gets log into a file
+        '''
+        logging.debug(error)
+
+    def log_info(self, info):
+        '''Method that logs infor data into a file
+            Args:
+                info (str): info that gets logged into a file
+        '''
+        logging.info(info)
+
+
 if __name__ == '__main__':
-    url = 'https://api.hubapi.com/engagements/v1/engagements/paged?hapikey=demo'
+    def print_commandline_message():
+        '''Function that prints command line message'''
+        print(
+            'Usage:<executable> <database name> <table>'
+            ' <action ["insert", "update"]>.'
+            ' Ex: ./hubspot alooma engagements insert')
+
     if len(sys.argv) is not 4:
-        print('Usage:<executable> <database name> <table> <action ["insert", "updated"]>. Ex: ./hubspot alooma engagements insert')
+        print_commandline_message()
         exit(0)
 
-    # Gets the CLIENT_ID associated with the hubspot API
-    client_id = os.getenv('CLIENT_ID')
-    dbname = sys.argv[1]
-    table = sys.argv[2]
-    action = sys.argv[3]
- 
-    h = Hubspot(client_id) 
-    kwargs = {'url': url, 'offset': 0, 'dbname': dbname, 'table': table, 'action': action}
-    if action == 'insert':
+    # Get arguments from command line
+    kwargs['dbname'] = sys.argv[1]
+    kwargs['table'] = sys.argv[2]
+    kwargs['action'] = sys.argv[3]
+
+    h = Hubspot(kwargs)
+    if kwargs['action'] == 'insert':
         # create database
-        h.create_database(dbname)
+        h.create_database(kwargs['dbname'])
         # create tables
-        h.create_tables(dbname, table)
+        h.create_tables(kwargs['dbname'], kwargs['table'])
         # ping Hubspot API and insert rows into table
         h.get_new_engagements(kwargs)
-    elif action == 'update':
+    elif kwargs['action'] == 'update':
         h.get_new_engagements(kwargs)
+    else:
+        print_commandline_message()
+    print('Checks logs in ./logs/hubspot.log for more log detail')
