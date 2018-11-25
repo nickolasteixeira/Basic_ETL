@@ -34,8 +34,9 @@ Run bash script to install all packages and set up database users/privileges: </
 `$ ./install_environment` -> Look inside file to change db passwords (make sure the ALOOMA_PASSWORD from env variable and password for DB are the same) </br>
 
 Run application code to ping the Hubspot API engagement route, insert new rows into database/update rows into database: </br>
-`Usage:<executable> <database name> <table> <action ["insert", "updated"]>. Ex: ./hubspot alooma engagements insert` </br>
+`Usage:<executable> <database name> <table> <action ["insert", "update"]>. Ex: ./hubspot alooma engagements insert` </br>
 
+* YOU HAVE TO RUN INSERT FIRST BEFORE UPDATING. If you do not insert new values into a db, you cannot update them. </br>
 To create a new database, table and ping the hubspot API for engagements to insert into your new table: (Be patient, this takes a while, grabbing 30K rows of data) </br>
 `$ ./hubspot alooma engagements insert` </br>
 
@@ -56,7 +57,7 @@ SQL Query that pulls the Engagements per Day broken down by type. </br>
 Present a rolling 2 week average for each day.
 
 ### Solution
-TBD
+`alooma=# select updated_at, avg(count(engagement_type)) over (order by updated_at rows between 7 preceding and 7 following) from engagements group by 1 order by 1 desc;`
 
 ## Final Summary
 Please provide steps - either in Python code, a Jupyter Notebook, or a step-by-step summary of your approach to the problem - and how you solved it. These steps should allow us to run through and implement your solution.
