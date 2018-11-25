@@ -42,6 +42,9 @@ To create a new database, table and ping the hubspot API for engagements to inse
 To update your rows in your tables from the Hubspot API engagement route: </br>
 `$ ./hubspot.py alooma engagements update` </br>
 
+### Errors
+If you encounter any errors, check the logs files in `./logs/hubspot.log`
+
 ## Reading Data
 Write a SQL Query that pulls the Engagements per Day broken down by type. You should expose the counts per day as well. Present these results in a format that makes sense to view. </br>
 
