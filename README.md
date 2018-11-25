@@ -22,24 +22,24 @@ Create a table and Load the Data In (this can be done during reads as well).
 * Database -  Postgres 9.5.14
 
 Clone repo: </br>
-`$ git clone https://github.com/nickolasteixeira/Alooma_Challenge.git`
-`$ cd Alooma_Challenge/`
+`$ git clone https://github.com/nickolasteixeira/Alooma_Challenge.git` </br>
+`$ cd Alooma_Challenge/` </br>
 
 Export environment variables: </br>
-`$ export ALOOMA_PASSWORD='yourpasswordhere'`
-`$ export CLIENT_ID='yourclientid'`
+`$ export ALOOMA_PASSWORD='yourpasswordhere'` </br>
+`$ export CLIENT_ID='yourclientid'` </br>
 
 Run bash script to install all packages and set up database users/privileges: </br> 
-`$ ./install_environment` -> Look inside file to change db passwords, client_ids for API and environment variables
+`$ ./install_environment` -> Look inside file to change db passwords, client_ids for API and environment variables (make sure the ALOOMA_PASSWORD and password for DB are the same) </br>
 
 Run application code to ping the Hubspot API engagement route, insert new rows into database/update rows into database: </br>
-`Usage:<executable> <database name> <table> <action ["create", "updated"]>. Ex: ./hubspot alooma engagements create`
+`Usage:<executable> <database name> <table> <action ["create", "updated"]>. Ex: ./hubspot alooma engagements create` </br>
 
 To create a new database, table and ping the hubspot API for engagements to insert into your new table: </br>
-`$ ./hubspot alooma engagements create`
+`$ ./hubspot alooma engagements create` </br>
 
 To update your rows in your tables from the Hubspot API engagement route: </br>
-`$ ./hubspot alooma engagements update`
+`$ ./hubspot alooma engagements update` </br>
 
 ## Reading Data
 Write a SQL Query that pulls the  Engagements per Day broken down by type. You should expose the counts per day as well. Present these results in a format that makes sense to view. </br>
