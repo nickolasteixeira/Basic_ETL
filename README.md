@@ -27,21 +27,20 @@ Clone repo: </br>
 
 Export environment variables: </br>
 `$ export ALOOMA_PASSWORD='yourpasswordhere'` </br>
-Current implementation does not need a client id for the Hubspot API demo, but if you want to ping other routes, sign up for a developers account and add a client_id
-`$ export CLIENT_ID='yourclientid'` </br>
 
 Run bash script to install all packages and set up database users/privileges: </br> 
 `$ ./install_environment` -> Look inside file to change db passwords (make sure the ALOOMA_PASSWORD from env variable and password for DB are the same) </br>
 
 Run application code to ping the Hubspot API engagement route, insert new rows into database/update rows into database: </br>
-`Usage:<executable> <database name> <table> <action ["insert", "update"]>. Ex: ./hubspot alooma engagements insert` </br>
+`Usage:<executable> <database name> <table> <action ["insert", "update"]>` </br>
 
-* YOU HAVE TO RUN INSERT FIRST BEFORE UPDATING. If you do not insert new values into a db, you cannot update them. </br>
+* YOU HAVE TO RUN INSERT FIRST BEFORE UPDATING. If you do not insert new values into a db, you cannot update them.
+
 To create a new database, table and ping the hubspot API for engagements to insert into your new table: (Be patient, this takes a while, grabbing 30K rows of data) </br>
-`$ ./hubspot alooma engagements insert` </br>
+`$ ./hubspot.py alooma engagements insert` </br>
 
 To update your rows in your tables from the Hubspot API engagement route: </br>
-`$ ./hubspot alooma engagements update` </br>
+`$ ./hubspot.py alooma engagements update` </br>
 
 ## Reading Data
 Write a SQL Query that pulls the Engagements per Day broken down by type. You should expose the counts per day as well. Present these results in a format that makes sense to view. </br>

@@ -9,7 +9,7 @@ sudo apt-get install -y python-dev
 #sudo apt-get install -y python3-dev
 
 # install pip or pip3 depending on python version
-sudo apt-getinstall -y python-pip
+sudo apt-get install -y python-pip
 #sudo apt-get install -y python3-pip
 
 # install all requirements for application code
