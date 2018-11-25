@@ -84,9 +84,8 @@ class Hubspot:
             conn = psycopg2.connect('dbname={} user={} host={} password={}'.format('postgres', os.getenv('USER'), 'localhost', os.getenv('ALOOMA_PASSWORD')))
             conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
             cur = conn.cursor()
-
             cur.execute("""SELECT datname FROM pg_catalog.pg_database WHERE lower(datname) = lower(%s);""", (dbname,))
-            if not cur.fetchone()[0]:
+            if cur.fetchone() is None:
                 cur.execute("""CREATE DATABASE %s;""" % dbname)
                 print('Database {} created.'.format(dbname))
             else:
@@ -141,8 +140,11 @@ if __name__ == '__main__':
     h = Hubspot(client_id) 
     kwargs = {'url': url, 'offset': 0, 'dbname': dbname, 'table': table, 'action': action}
     if action == 'create':
+        # create database
         h.create_database(dbname)
+        # create tables
         h.create_tables(dbname, table)
+        # ping Hubspot API and insert rows into table
         h.get_new_engagements(kwargs)
     elif action == 'update':
         h.get_new_engagements(kwargs)
