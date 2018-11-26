@@ -29,7 +29,7 @@ Export environment variables: </br>
 `$ export ALOOMA_PASSWORD='yourpasswordhere'` </br>
 
 Run bash script to install all packages and set up database users/privileges: </br> 
-`$ ./install_environment` -> Look inside file to change db passwords (make sure the ALOOMA_PASSWORD from env variable and password for DB are the same) </br>
+`$ ./install_environment.sh` -> Look inside file to change db passwords (make sure the ALOOMA_PASSWORD from env variable and password for DB are the same) </br>
 
 Run application code to ping the Hubspot API engagement route, insert new rows into database/update rows into database: </br>
 `Usage:<executable> <database name> <table> <action ["insert", "update"]>` </br>
