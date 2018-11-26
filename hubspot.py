@@ -1,10 +1,5 @@
 #!/usr/bin/python
 # #!/usr/bin/python3
-'''Module that pings Hubspot API and inserts engagement metrics into
-    postgres database
-    Usage:<executable> <database name> <table> <action ["insert", "update"]>.
-    Ex: ./hubspot alooma engagements insert
-'''
 import argparse
 from datetime import datetime
 from inputs import kwargs
@@ -29,7 +24,14 @@ class Hubspot:
         Args:
             kwargs:
         '''
-        self.url = kwargs['base'] + kwargs['endpoints']
+        if not isinstance(kwargs, dict):
+            message = 'Need to pass in a dict type argument'\
+                ' into the Hubspot class'
+            print(message)
+            self.log_info(message)
+            exit(0)
+
+        self.url = kwargs['base'] + kwargs['endpoint']
         self.params = kwargs['params']
 
     def get_new_engagements(self, kwargs):
@@ -38,6 +40,13 @@ class Hubspot:
             kwargs (dict): dict of items for actions associated with the method
             ex: base, enpoints, params, dbname, table, action
         '''
+        if not isinstance(kwargs, dict):
+            message = 'Need to pass in a dict type argument' \
+                ' into the get_new_engagements method'
+            print(message)
+            self.log_info(message)
+            exit(0)
+
         url, num, dbname, table, action = self.url, \
             kwargs['offset'], kwargs['dbname'], \
             kwargs['table'], kwargs['action']
@@ -117,6 +126,13 @@ class Hubspot:
         Args:
             dbname (str): database name to create
         '''
+        if not isinstance(dbname, str):
+            message = 'Need to pass in a string type argument' \
+                ' into the create_database method'
+            print(message)
+            self.log_info(message)
+            exit(0)
+
         conn = None
         try:
             conn = psycopg2.connect(
@@ -161,6 +177,13 @@ class Hubspot:
             db (str): database name to use for the database
             table (str): table name to create
         '''
+        if not isinstance(dbname, str) or not isinstance(table, str):
+            message = 'Need to pass in a string type argument'\
+                ' into the tables method'
+            print(message)
+            self.log_info(message)
+            exit(0)
+
         conn = None
         try:
             conn = psycopg2.connect('dbname={} user={} password={}'.format(
