@@ -5,6 +5,7 @@
     Usage:<executable> <database name> <table> <action ["insert", "update"]>.
     Ex: ./hubspot alooma engagements insert
 '''
+import argparse
 from datetime import datetime
 from inputs import kwargs
 import logging
@@ -216,21 +217,26 @@ class Hubspot:
 
 
 if __name__ == '__main__':
-    def print_commandline_message():
-        '''Function that prints command line message'''
-        print(
-            'Usage:<executable> <database name> <table>'
-            ' <action ["insert", "update"]>.'
-            ' Ex: ./hubspot alooma engagements insert')
-
-    if len(sys.argv) is not 4:
-        print_commandline_message()
-        exit(0)
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "database",
+        help="input the name of the database you want to create",
+        type=str)
+    parser.add_argument(
+        "table",
+        help="input the name of the table you want to create",
+        type=str)
+    parser.add_argument(
+        "command",
+        help="type the command you want to execute. Ex: 'insert' \
+        'to insert rows into a database. 'update' to update rows in a databse",
+        type=str)
+    args = parser.parse_args()
 
     # Get arguments from command line
-    kwargs['dbname'] = sys.argv[1]
-    kwargs['table'] = sys.argv[2]
-    kwargs['action'] = sys.argv[3]
+    kwargs['dbname'] = args.database
+    kwargs['table'] = args.table
+    kwargs['action'] = args.command
 
     h = Hubspot(kwargs)
     if kwargs['action'] == 'insert':
@@ -241,8 +247,6 @@ if __name__ == '__main__':
         # ping Hubspot API and insert rows into table
         h.get_new_engagements(kwargs)
     elif kwargs['action'] == 'update':
-	print('Updating...')
+        print('Updating...')
         h.get_new_engagements(kwargs)
-    else:
-        print_commandline_message()
-    print('Checks logs in ./logs/hubspot.log for more log detail')
+    print('Checks logs in ./logs/hubspot.log for more log detail.')
