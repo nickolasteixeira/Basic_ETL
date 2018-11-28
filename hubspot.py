@@ -3,7 +3,7 @@
 '''Module that pings Hubspot API and inserts engagement metrics into
     postgres database
     Usage:<executable> <database name> <table> <action ["insert", "update"]>.
-    Ex: ./hubspot alooma engagements insert
+    Ex: ./hubspot challenge engagements insert
 '''
 import argparse
 from datetime import datetime
@@ -33,7 +33,7 @@ class Hubspot:
         self.params = kwargs['params']
 
     def get_new_engagements(self, kwargs):
-        '''Method that pings Hubspot Engagement API and writes to alooma database
+        '''Method that pings Hubspot Engagement API and writes to challenge database
         Args:
             kwargs (dict): dict of items for actions associated with the method
             ex: base, enpoints, params, dbname, table, action
@@ -53,7 +53,7 @@ class Hubspot:
                 conn = psycopg2.connect(
                     """dbname={} user={} password={}""".format(
                         dbname, os.getenv('USER'),
-                        os.getenv('ALOOMA_PASSWORD')))
+                        os.getenv('challenge_PASSWORD')))
                 cur = conn.cursor()
                 added, updated = False, False
                 for item in results:
@@ -124,7 +124,7 @@ class Hubspot:
                     'postgres',
                     os.getenv('USER'),
                     'localhost',
-                    os.getenv('ALOOMA_PASSWORD')))
+                    os.getenv('challenge_PASSWORD')))
             conn.set_isolation_level(
                 psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
             cur = conn.cursor()
@@ -164,7 +164,7 @@ class Hubspot:
         conn = None
         try:
             conn = psycopg2.connect('dbname={} user={} password={}'.format(
-                dbname, os.getenv('USER'), os.getenv('ALOOMA_PASSWORD')))
+                dbname, os.getenv('USER'), os.getenv('challenge_PASSWORD')))
             cur = conn.cursor()
             cur.execute(
                 """SELECT EXISTS

@@ -1,18 +1,3 @@
-# Alooma CSE/DSE Challenge
-
-
-## Extracting Data
-Pull Data from Hubspot. Using their API and Python, build out logic to extract Engagement data from their endpoint. Organize this data and store it into a file structure that makes sense.
-* Auth:  https://developers.hubspot.com/docs/overview  (see demo key)
-* Engagements API: https://developers.hubspot.com/docs/methods/engagements/engagements-overview
-
-Spin Up a relational db Instance, you can choose either:
-* Postgres 9.4+
-* MySQL 5.6+
-* Oracle 11g+
-* SQL server (but please provide the docker image tag for it)
-
-Create a table and Load the Data In (this can be done during reads as well).
 
 ### Solution
 #### Environment
@@ -22,14 +7,14 @@ Create a table and Load the Data In (this can be done during reads as well).
 * Database -  Postgres 9.5.14
 
 Clone repo: </br>
-`$ git clone https://github.com/nickolasteixeira/Alooma_Challenge.git` </br>
-`$ cd Alooma_Challenge/` </br>
+`$ git clone https://github.com/nickolasteixeira/Challenge_Challenge.git` </br>
+`$ cd Challenge_Challenge/` </br>
 
 Export environment variables: </br>
-`$ export ALOOMA_PASSWORD='yourpasswordhere'` </br>
+`$ export challenge_PASSWORD='yourpasswordhere'` </br>
 
 Run bash script to install all packages and set up database users/privileges: </br> 
-`$ ./install_environment.sh` -> Look inside file to change db passwords (make sure the ALOOMA_PASSWORD from env variable and password for DB are the same) </br>
+`$ ./install_environment.sh` -> Look inside file to change db passwords (make sure the challenge_PASSWORD from env variable and password for DB are the same) </br>
 
 Run application code to ping the Hubspot API engagement route, insert new rows into database/update rows into database: </br>
 `Usage:<executable> <database name> <table> <action ["insert", "update"]>` </br>
@@ -37,10 +22,10 @@ Run application code to ping the Hubspot API engagement route, insert new rows i
 * YOU HAVE TO RUN INSERT FIRST BEFORE UPDATING. If you do not insert new values into a db, you cannot update them.
 
 To create a new database, table and ping the hubspot API for engagements to insert into your new table: (Be patient, this takes a while, grabbing 30K rows of data) </br>
-`$ ./hubspot.py alooma engagements insert` </br>
+`$ ./hubspot.py challenge engagements insert` </br>
 
 To update your rows in your tables from the Hubspot API engagement route: </br>
-`$ ./hubspot.py alooma engagements update` </br>
+`$ ./hubspot.py challenge engagements update` </br>
 
 ### Errors
 If you encounter any errors, check the logs files in `./logs/hubspot.log`
@@ -50,16 +35,16 @@ Write a SQL Query that pulls the Engagements per Day broken down by type. You sh
 
 ### Solution
 To enter into your postgres database: </br>
-`$ psql alooma` </br>
+`$ psql challenge` </br>
 
 SQL Query that pulls the Engagements per Day broken down by type. </br>
-`alooma=# select updated_at, engagement_type, count(engagement_type) from engagements group by updated_at, engagement_type order by updated_at desc, count desc;` </br>
+`challenge=# select updated_at, engagement_type, count(engagement_type) from engagements group by updated_at, engagement_type order by updated_at desc, count desc;` </br>
 
 ## Bonus Points
 Present a rolling 2 week average for each day.
 
 ### Solution
-`alooma=# select updated_at, avg(count(engagement_type)) over (order by updated_at rows between 7 preceding and 7 following) from engagements group by 1 order by 1 desc;`
+`challenge=# select updated_at, avg(count(engagement_type)) over (order by updated_at rows between 7 preceding and 7 following) from engagements group by 1 order by 1 desc;`
 
 ## Final Summary
 Please provide steps - either in Python code, a Jupyter Notebook, or a step-by-step summary of your approach to the problem - and how you solved it. These steps should allow us to run through and implement your solution.

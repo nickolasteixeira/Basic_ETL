@@ -1,4 +1,4 @@
-INFO:2018-11-25 23:05:08,613:2018-11-25 23:05:08 --> Database alooma created.
+INFO:2018-11-25 23:05:08,613:2018-11-25 23:05:08 --> Database challenge created.
 INFO:2018-11-25 23:05:08,639:2018-11-25 23:05:08 --> Table engagements created.
 DEBUG:2018-11-25 23:05:08,642:Starting new HTTPS connection (1): api.hubapi.com:443
 DEBUG:2018-11-25 23:05:09,282:https://api.hubapi.com:443 "GET /engagements/v1/engagements/paged?hapikey=demo&offset=0 HTTP/1.1" 200 None
