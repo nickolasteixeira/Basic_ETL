@@ -1,4 +1,3 @@
-
 ### Solution
 #### Environment
 * OS - Linux Ubuntu 16.04
@@ -30,9 +29,6 @@ To update your rows in your tables from the Hubspot API engagement route: </br>
 ### Errors
 If you encounter any errors, check the logs files in `./logs/hubspot.log`
 
-## Reading Data
-Write a SQL Query that pulls the Engagements per Day broken down by type. You should expose the counts per day as well. Present these results in a format that makes sense to view. </br>
-
 ### Solution
 To enter into your postgres database: </br>
 `$ psql challenge` </br>
@@ -40,14 +36,8 @@ To enter into your postgres database: </br>
 SQL Query that pulls the Engagements per Day broken down by type. </br>
 `challenge=# select updated_at, engagement_type, count(engagement_type) from engagements group by updated_at, engagement_type order by updated_at desc, count desc;` </br>
 
-## Bonus Points
-Present a rolling 2 week average for each day.
-
 ### Solution
 `challenge=# select updated_at, avg(count(engagement_type)) over (order by updated_at rows between 7 preceding and 7 following) from engagements group by 1 order by 1 desc;`
-
-## Final Summary
-Please provide steps - either in Python code, a Jupyter Notebook, or a step-by-step summary of your approach to the problem - and how you solved it. These steps should allow us to run through and implement your solution.
 
 ### Solution
 My approach was two fold:</br>
