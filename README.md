@@ -1,4 +1,5 @@
-### Solution
+# Basic ETL - Ping API -> Insert into Database
+
 #### Environment
 * OS - Linux Ubuntu 16.04
 * Language - Python 3.5.2 with pip3 package manager installed (Backwards compatibility with Python 2.7.12 with pip package manager)
@@ -6,8 +7,8 @@
 * Database -  Postgres 9.5.14
 
 Clone repo: </br>
-`$ git clone https://github.com/nickolasteixeira/Challenge_Challenge.git` </br>
-`$ cd Challenge_Challenge/` </br>
+`$ git clone https://github.com/nickolasteixeira/Basic_ETL.git` </br>
+`$ cd Basic_ETL/` </br>
 
 Export environment variables: </br>
 `$ export challenge_PASSWORD='yourpasswordhere'` </br>
@@ -29,17 +30,12 @@ To update your rows in your tables from the Hubspot API engagement route: </br>
 ### Errors
 If you encounter any errors, check the logs files in `./logs/hubspot.log`
 
-### Solution
 To enter into your postgres database: </br>
 `$ psql challenge` </br>
 
 SQL Query that pulls the Engagements per Day broken down by type. </br>
 `challenge=# select updated_at, engagement_type, count(engagement_type) from engagements group by updated_at, engagement_type order by updated_at desc, count desc;` </br>
 
-### Solution
-`challenge=# select updated_at, avg(count(engagement_type)) over (order by updated_at rows between 7 preceding and 7 following) from engagements group by 1 order by 1 desc;`
-
-### Solution
 My approach was two fold:</br>
 1. Set up an environment and instructions that allowed for easy implementation.
 2. Break down the problem into simple and small pieces to make the code reusable and extensible.  
